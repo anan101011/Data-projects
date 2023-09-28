@@ -1,0 +1,165 @@
+---
+title: "POL390 HW1"
+author: "Anandjot Hothi and Justin Achadinha"
+date: "2023-01-23"
+output: slidy_presentation
+---
+##Introduction 
+Voting is the easiest way a citizen can actively participate and bring about change in their local and federal governments through the choice of their legal and political representatives. 
+
+The question of why voter turnout has dropped in recent years to 44.5% in 2021, from the average of 61.4% yearly in 2011 (Historical Voter Turnout in Canadian Federal Elections - 1867-2011, 2011).This analysis will explore why potential voters vote or not by looking at the 2021 Canadian National Election Study data set.
+
+This data is collected through a nationally representative sample done by online public opinion survey. Questionnaires are asked a series of questions relating to voter choice and their political opinion. The goal of data collection is to ensure accuracy by identifying ineligible participants and duplicate responses in the survey by examining IP addresses, year of birth, gender, education, and other information.
+
+The survey consists of two parts: a campaign period survey and a post-election survey. Overall, there are 20968 individuals (who might not have participated in each survey) and there are 1062 variables. 
+
+To begin, we are not investigating why voter turnout is low in Canada; rather, we are exploring why certain groups of Canadians have higher or lower voter turnout. In our voter turnout investigation, we created three graphs: one on who voters voted for, another on voters' education level and how it affects their support for either the Liberal or Conservative parties.We look towards the Conservative and Liberal parties of Canada, as they have been the front runners in all aspects of government. Over the last few decades, Conservatives and Liberals from either group have won the majority of votes in the House of Commons, eventually becoming our primary federal group.
+Our last graph is looking at gender and whether there is a group difference in voter participation. To be more in depth, does one gender group have a certain preference in voting or not, and how does their region affect their choice in politics and the outcome of voter turnout?
+
+
+##
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(haven)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+```
+#Graph 1
+```{r}
+CES <- haven :: read_dta("/Users/ana/Downloads/2021 Canadian Election Study v1.0.dta")
+
+CES<- dplyr:: rename(CES, best_support= cps21_imp_iss_party)
+CES<- dplyr:: rename(CES, e_level=cps21_education)
+names(CES[,c(1:2, 23,24,31, 33, 34)])
+
+CES %>%
+  count(~best_support) %>%
+  plot_ly(x= ~best_support, y = ~n) %>%
+  add_markers()
+
+
+```
+
+##This graph displays how much satisfaction on addressing a previously stated important issue. There are 2 components to this graph, population numbers, and satisfaction on handling the persons most important issue. The n is on the y axis, while the best_support is on the x axis. The n stands for the total population and is subdivided into each bar. The variable best_support is divided into 7 groups depending on the party. 1 stands for liberal which has 4989 people in it. 2 stands for conservative which has 4602. 3 stands for NDP and has 3626. 4 stands for the bloc, which has 1233 people in it. 5 stands for the green party and has 1084 people. Finally there are 4263 people that responded do not know or prefer not to say. This shows the liberal party as the most popular party for addressing the recipients key issues. More important there is a large number of people who prefer not to say or are unsure. This large group shows how Canadians may be frustrated with political parties that do not follow their desires. This can reduce the voter turnout as the third largest group does not see satisfaction with any party, which can cause this group not to cast a ballot. 
+
+
+
+##Graph 2
+```{r warning = FALSE}
+CES <- haven::read_dta("/Users/ana/Downloads/2021 Canadian Election Study v1.0.dta")
+
+p1 <- CES %>%
+  count(~CES$best_support,~CES$e_level) %>%
+  plot_ly(x= ~CES$best_support, y = ~n, color = ~e_level,
+          hoverinfo="text",
+          text = ~paste("e_level:", e_level, "<br>",
+            "best_support:", best_support, "<br>",
+                        "n:", n)) %>%
+  add_bars(colors = "PuRd") %>%
+  layout(barmode = "stack")
+
+subplot(p1, margin=0.05)
+
+```
+
+
+##Explanation
+
+The second graph reports that education level affects voter satisfaction with every political party. The graph consists of 3 components education level, number of participants, satisfaction with every party on addressing their most important issue. The education variable goes from 1 to 12 and changes depending on how much education the participant received. 1 stands for no education, 2 is some elementary education, 3 is completed elementary education. 4 Consists of some high school, 5 has completed high school, 6 is not completing trade school, 7 is finishing trade school, 8 is some university, 9 is bachelor's degree, 10 is a masters degree, 11 is a doctorate, and 12 is don’t know or prefer not to say. The x axis shows which party can most effectively address the participants important issue with a scale from 1 to 7. 1 stands for liberal with 4989 people in it. 2 stands for conservative which has 4602. 3 stands for NDP and has 3626 individuals. 4 stands for bloc which has 1233 people. 5 stands for the green party and has 1084 people. Finally there are 4263 people in it that do not know or prefer not to say category. In addition this variable asked a previous question of where a person was asked what most important issue is. In addition the y axis shows how many people are in each graph. Finally each bar is split by education in ascending order.
+
+Analyzing the graph, education rate does affect voting intent and how satisfied an individual is to a party. Since the population sizes of the liberals, conservatives, and unsure are similar, it is best to use them to compare. There is evidence that people with less education are more unsure, which can affect voter turnout if they are not satisfied with any party political party handling their most important issue. For example, the liberal group at education level 9 has a total of 1581 and for conservatives it is 1287. Compare this to the unsure group at education level 9, where there are 1181 respondents. Overall there are more people in the conservative and liberal groups. Comparing this to education level 5 where there are 626 conservatives respondents or 573 liberal ones. In the unsure category there are 679. There is a 53 number difference for conservatives and a 106 difference with liberals. It is similar observation in other groups with more educated people satisfied with a political party tacking of their important issue, while less educated people are more likely unsure. This could effect voter turnout as people are less likely to vote if they are unsure with every political parties. There is a variety of reasons, but if they are not met the unsure group may abstain from voting because the group is unsure which party can execute and handle their most important issue.
+##Chart 1 
+```{r}
+
+
+CES <- haven::read_dta("/Users/ana/Downloads/2021 Canadian Election Study v1.0.dta")
+Agg.CES <- CES %>%
+  filter(cps21_education > 3) %>%
+  group_by(cps21_education) %>%
+  summarize(cps21_imp_iss_party.mean = mean(cps21_imp_iss_party, na.rm=T),
+            cps21_imp_iss_party.median = median(cps21_imp_iss_party, na.rm=T),
+            cps21_imp_iss_party.max = max(cps21_imp_iss_party, na.rm=T),
+            cps21_imp_iss_party.min = min(cps21_imp_iss_party, na.rm=T),
+            cases = n())
+Agg.CES
+```
+##Chart 2
+```{r}
+CES <- haven::read_dta("/Users/ana/Downloads/2021 Canadian Election Study v1.0.dta")
+Agg.CES <- CES %>%
+  filter(cps21_imp_iss_party < 3) %>%
+  group_by(cps21_imp_iss_party) %>%
+  summarize(cps21_education.mean = mean(cps21_education, na.rm=T),
+            cps21_education.median = median(cps21_education, na.rm=T),
+           cps21_education.max = max(cps21_education, na.rm=T),
+            cps21_education.min = min(cps21_education, na.rm=T),
+            cases = n())
+Agg.CES
+```
+##This charts follow the 2nd graph and groups by party satisfaction and gives a summary that provides a mean median, max, min, and number of cases pertaining education level. It shows that conservatives have a higher education rate than the unsure because it has a greater mean and population group. The higher the mean shows that the group has more education. Conservatives have a mean of 7.65, while unsure have mean of 7.52. So there are more people with less educated in the unsure group than conservatives.
+
+##Mutate
+```{r warning = FALSE}
+
+ CES <- haven::read_dta("/Users/ana/Downloads/2021 Canadian Election Study v1.0.dta")
+
+CES$cps21_cps21_province<-as.numeric(CES$cps21_province)
+
+CES$cps21_genderid<- as.numeric(CES$cps21_genderid)
+
+CES$cps21_votechoice<- as.numeric(CES$cps21_votechoice)
+
+
+CES<- dplyr::  select(CES, cps21_genderid,  cps21_votechoice, cps21_province) 
+ 
+
+CES%>% mutate(cps21_genderid=recode(cps21_genderid, 
+                         `1`="Male",
+                         `2`="Female", 
+                         `3` ="Non-binary",
+                         `4`="Other")) %>%
+    arrange(CES, desc(cps21_votechoice))
+  
+head(CES) [1:3]
+
+```
+
+##Graph 3
+```{r warning = FALSE}
+
+CES <- haven::read_dta("/Users/ana/Downloads/2021 Canadian Election Study v1.0.dta")
+ggplot(data= CES, aes( x=cps21_province, y= cps21_votechoice)) +  geom_point(color="lightblue") +
+  labs(x = "Canadian Provinces and Territories",
+         y = "Political Parties",
+         title = "Different Gender groups and their voter choice in Canadian parties")+
+     facet_wrap(~ cps21_genderid) +
+   theme( strip.text.x = element_text(
+        size = 12, color = "purple", face = "bold.italic"
+        ),
+      strip.text.y = element_text(
+        size = 12, color = "purple", face = "bold.italic"))
+  
+
+
+```
+
+
+
+## The third graph is presented with the x variable being the Canadian provinces and territories in numerical order. The number 1 on the x-axis represents: Alberta, the number 2 British Columbia, the number 3 Manitoba, the number 4 New Brunswick, the number 5 Newfoundland and Labrador, the number 6 Northwest Territories, the number 7 Nova Scotia, the number 8 Nunavut, the number 9 Ontario, the number 10 Prince Edward Island, the number 11 Quebec, then number 12 Saskatchewan, and the number 13 Yukon.The y-axis is labelled also with numbers that represent Canadian political parties: 1 is the Liberal Party, 2 is the Conservative Party, 3 is the New Democratic Party, 4 is the Bloc Quebecois, 5 is the Green Party, 6 is another party, and 7 is for those who don't know how to answer the question or prefer not to. Additionally, the graph is divided into four panels.
+
+Similarly to the x and y variables, the title on each panel is a number that represents a word. The first panel, with the header 1, represents the male population, the second panel, the female population, the third panel, non-binary people, and the fourth panel, people who identify as other.
+In the first and second panels, we see that most points are covered, with the majority of both male and female respondents agreeing with the range of political parties in Canada, with males having a slightly higher voter turnout rate than females. Interesting enough, the Bloc Quebecois party only receives votes from citizens who live in Quebec in all four gender groups. This can tell us that the issues presented by the Bloc Quebecois only reach Quebecois in their decisions on who to vote for. Furthermore, minority groups are less likely to vote in all panels.The most popular political parties to vote for throughout Canada are the Liberals, Conservatives, and NDP. This makes sense because they are usually the biggest contenders for federal elections. In male and female, both points for point 7 on the y axis, "don't know or prefer not to answer" for political parties, raise the question that maybe many Canadians are not confident in their political parties, which is why we are seeing lower voter turnout rates in recent years.
+Non-binary people and people who identify as others have a significant decrease in points for their alignment with voting. Non-binary people do vote more than others; however, the ones that do vote come from more liberal areas. We also see the provinces in the Atlantic region for all panels decrease in relation to the political party to vote for. Mostly with the non-binary and other groups in those regions. They may feel a disconnect with federal political parties aligned with their issues; even popular parties like the Liberals and Conservatives are not reaching the Atlantic region's voters.
+
+Reference:
+Historical Voter Turnout in Canadian Federal Elections - 1867-2011. (2011). Www.sfu.ca. https://www.sfu.ca/~aheard/elections/historical-turnout.html
+
+
+
+##Conclusion 
+
+The graphs displays different points including satisfaction with the liberal party, how education affects the voter, and how gender and provincial residency affects voter turnout. The first graph displayed a majority satisfaction for a political party, but has a large group of unsure voters. The second graph showed that education influences the individual as the more educated a person is the more satisfied they are to a party. Finally, the third graph shows that some gender groups like non-binary individuals will have a lower alignment to political parties. Finally, provincial residency affects voter alignment and turnout with places like Atlantic Canada having a lower turnout rate. Education, gender, or provincial residence has some causality that effect voter turnout and how happy an individual is with every political party. Voter turnout is an important issue that needs to be tackled. Finding what variables affect it can help the country improve voter turnout, by trying to mitigate negative factors.
+
