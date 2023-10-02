@@ -2,7 +2,7 @@
 title: "Voter turnout in Canada"
 author: "Anandjot Hothi"
 date: "2023-01-23"
-output: slidy_presentation
+output: html_document
 ---
 #Introduction 
 Voting is the easiest way a citizen can actively participate and bring about change in their local and federal governments through the choice of their legal and political representatives. 
